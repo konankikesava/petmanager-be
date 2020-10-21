@@ -1,0 +1,25 @@
+package ee.cgi.kk.petmanager.repository;
+
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+import ee.cgi.kk.petmanager.domain.UserInfo;
+
+@Repository
+@Transactional
+public interface UserDetailsRepository extends CrudRepository<UserInfo, String> {
+	public UserInfo findByUserNameAndEnabled(String userName, int enabled);
+
+	public List<UserInfo> findAllByEnabled(int enabled);
+
+	public UserInfo findById(Integer id);
+//
+//	@Override
+//	public UserInfo save(UserInfo userInfo);
+
+	public void deleteById(Integer id);
+}

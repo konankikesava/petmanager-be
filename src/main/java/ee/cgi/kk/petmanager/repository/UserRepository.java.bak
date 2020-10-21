@@ -1,0 +1,12 @@
+package ee.cgi.kk.petmanager.repository;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import ee.cgi.kk.petmanager.domain.CryptoUser;
+
+public interface UserRepository extends MongoRepository<CryptoUser, String> {
+
+	CryptoUser findByUsername(String username);
+	CryptoUser findByEmail(String email);
+	
+}

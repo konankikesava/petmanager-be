@@ -1,0 +1,161 @@
+package ee.cgi.kk.petmanager.controllers;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import ee.cgi.kk.petmanager.cc.Action;
+import ee.cgi.kk.petmanager.cc.Message;
+import ee.cgi.kk.petmanager.cc.Status;
+import ee.cgi.kk.petmanager.domain.Pet;
+import ee.cgi.kk.petmanager.rest.RestPet;
+import ee.cgi.kk.petmanager.service.PetService;
+
+@RestController
+@CrossOrigin
+@RequestMapping("/pet")
+public class PetManagerController {
+
+	@Autowired
+	@Qualifier("petService")
+	public PetService petService;
+
+	@GetMapping("/get")
+	public Map<String, Object> findAll() {
+		return wrapResponseWithMetadata(petService.findAll(), Status.OK, Action.READ, Message.OK.toString());
+	}
+
+	@GetMapping("/get/paged/{page}/{size}")
+	public Map<String, Object> findAll(@PathVariable("page") Integer page, @PathVariable("size") Integer size) {
+
+		Map result = petService.findAll(page, size);
+		return wrapResponseWithMetadata((List<Pet>) result.get("events"), Status.OK, Action.READ, Message.OK.toString(),
+				true, Integer.parseInt(result.get("count") + ""));
+	}
+
+	@GetMapping("/get/paged/sorted/{page}/{size}/{sortColumn}/{sortDirection}")
+	public Map<String, Object> findAll(@PathVariable("page") Integer page, @PathVariable("size") Integer size,
+			@PathVariable("sortColumn") String sortColumn, @PathVariable("sortDirection") String sortDirection) {
+		return findAll(page, size, sortColumn, sortDirection, "");
+	}
+
+	@GetMapping("/get/paged/sorted/filtered/{page}/{size}/{sortColumn}/{sortDirection}/{filter}")
+	public Map<String, Object> findAll(@PathVariable("page") Integer page, @PathVariable("size") Integer size,
+			@PathVariable("sortColumn") String sortColumn, @PathVariable("sortDirection") String sortDirection,
+			@PathVariable("filter") String filter) {
+
+		List allowedSortingColumns = Arrays.stream(Pet.class.getDeclaredFields()).map(field -> field.getName())
+				.collect(Collectors.toList());
+
+//		if (allowedSortingColumns.contains(sortColumn)) {
+//
+//			Map result = petService.findAll(page, size, sortColumn,
+//					sortDirection.equalsIgnoreCase(Sort.Direction.DESC.toString()) ? Sort.Direction.DESC
+//							: Sort.Direction.ASC,
+//					filter);
+//			return wrapResponseWithMetadata((List<Pet>) result.get("events"), Status.OK, Action.READ,
+//					Message.OK.toString(), true, Integer.parseInt(result.get("count") + ""));
+//
+//		} else
+		return wrapResponseWithMetadata(Collections.emptyList(), Status.ERROR, Action.READ,
+				new MessageFormat("Allowed sorting columns are: {0}").format(
+						new String[] { allowedSortingColumns.stream().collect(Collectors.joining(", ")) + "" }));
+
+	}
+
+	@GetMapping("/get/{id}")
+	public Map<String, Object> findById(@PathVariable("id") Long id) {
+
+		if (petService.existsById(id))
+			return wrapResponseWithMetadata(wrapToList(petService.findById(id)), Status.OK, Action.READ,
+					Message.OK.toString());
+		else
+			return wrapResponseWithMetadata(Collections.emptyList(), Status.ERROR, Action.READ,
+					Message.NOT_FOUND.toString());
+	}
+
+	@PostMapping("/add")
+	public Map<String, Object> save(@RequestBody RestPet event) {
+
+		Long id = event.getId();
+		Pet pet1 = new Pet();
+		if (id != null) {
+
+			if (petService.existsById(id))
+				return wrapResponseWithMetadata(wrapToList(petService.save(pet1)), Status.OK, Action.UPDATE,
+						Message.OK.toString());
+			else
+				return wrapResponseWithMetadata(Collections.emptyList(), Status.ERROR, Action.UPDATE,
+						Message.NOT_FOUND.toString());
+		} else {
+			Pet pet = new Pet(event.getCpetname(), "Dog", event.getCpetgender(), event.getStartdate(),
+					event.getEnddate());
+			return wrapResponseWithMetadata(wrapToList(petService.save(pet)), Status.OK, Action.CREATE,
+					Message.OK.toString());
+		}
+
+	}
+
+	@GetMapping("/delete/{id}")
+	public Map<String, Object> delete(@PathVariable("id") Long id) {
+
+		if (petService.existsById(id)) {
+
+			Pet pet = petService.findById(id);
+			petService.delete(id);
+			return wrapResponseWithMetadata(wrapToList(pet), Status.OK, Action.DELETE, Message.OK.toString());
+
+		} else
+			return wrapResponseWithMetadata(Collections.emptyList(), Status.ERROR, Action.DELETE,
+					Message.NOT_FOUND.toString());
+	}
+
+	private List<Pet> wrapToList(Pet event) {
+
+		List<Pet> events = new ArrayList<>();
+
+		if (event != null)
+			events.add(event);
+
+		return events;
+
+	}
+
+	private Map<String, Object> wrapResponseWithMetadata(List<Pet> events, Enum<Status> status, Enum<Action> actionType,
+			String message) {
+		return wrapResponseWithMetadata(events, status, actionType, message, false, null);
+	}
+
+	private Map<String, Object> wrapResponseWithMetadata(List<Pet> pets, Enum<Status> status, Enum<Action> actionType,
+			String message, boolean addCount, Integer count) {
+
+		Map resultMap = new LinkedHashMap();
+
+		if (addCount)
+			resultMap.put("petCount", count);
+
+		resultMap.put("pet", pets);
+		resultMap.put("status", Integer.parseInt(status.toString()));
+		resultMap.put("message", message);
+		resultMap.put("action", actionType.toString());
+
+		return resultMap;
+
+	}
+
+}

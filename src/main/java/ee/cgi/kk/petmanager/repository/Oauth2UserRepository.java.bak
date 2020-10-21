@@ -1,0 +1,9 @@
+package ee.cgi.kk.petmanager.repository;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import ee.cgi.kk.petmanager.domain.CryptoOauth2User;
+
+public interface Oauth2UserRepository extends MongoRepository<CryptoOauth2User, String>{
+	
+}

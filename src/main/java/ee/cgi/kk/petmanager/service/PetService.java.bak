@@ -1,0 +1,82 @@
+package ee.cgi.kk.petmanager.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import ee.cgi.kk.petmanager.domain.Pet;
+import ee.cgi.kk.petmanager.repository.PetRepository;
+
+@Service("petService")
+public class PetService {
+
+    @Autowired
+	@Qualifier("petRepository")
+	PetRepository repository;
+
+	public List<Pet> findAll() {
+        return (List)repository.findAll();
+    }
+
+    public Map<String, Object> findAll(int page, int size) {
+
+        Page result = repository.findAll(PageRequest.of(page, size));
+
+        HashMap resultMap = new HashMap();
+        resultMap.put("events", result.getContent());
+        resultMap.put("count", result.getTotalElements());
+
+        return resultMap;
+    }
+
+	public Map<String, Object> findAll(int page, int size, String sortColumn, Sort.Direction sortDirection) {
+		Page result = repository.findAll((Pageable) PageRequest.of(page, size, sortDirection, sortColumn));
+
+        HashMap resultMap = new HashMap();
+        resultMap.put("events", result.getContent());
+        resultMap.put("count", result.getTotalElements());
+
+        return resultMap;
+    }
+
+//    public Map<String, Object> findAll(int page, int size, String sortColumn, Sort.Direction sortDirection, String filter) {
+//
+//        QEvent event = QEvent.event;
+//        BooleanExpression eventIdIsLike = event.id.like('%'+filter+'%');
+//        BooleanExpression eventNameIsLike = event.name.like('%'+filter+'%');
+//        BooleanExpression eventStartDateIsLike = event.startdate.like('%'+filter+'%');
+//
+//        Page result = repository.findAll(eventIdIsLike.or(eventNameIsLike).or(eventStartDateIsLike), PageRequest.of(page, size, new Sort(sortDirection, sortColumn)));
+//
+//        HashMap resultMap = new HashMap();
+//        resultMap.put("events", result.getContent());
+//        resultMap.put("count", result.getTotalElements());
+//
+//        return resultMap;
+//    }
+
+	public Pet findById(Long id) {
+        return repository.findById(id).get();
+    }
+
+	public Pet save(Pet event) {
+        return repository.save(event);
+    }
+
+	public void delete(Long id) {
+        repository.deleteById(id);
+    }
+
+	public boolean existsById(Long id) {
+        return repository.existsById(id);
+    }
+
+}
