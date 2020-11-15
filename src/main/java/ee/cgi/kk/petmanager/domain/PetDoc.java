@@ -1,6 +1,5 @@
 package ee.cgi.kk.petmanager.domain;
 
-import javax.persistence.Column;
 import javax.persistence.Id;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -10,26 +9,16 @@ public class PetDoc {
 
 
 	@Id
-//	@GeneratedValue(strategy = GenerationType.AUTO, generator = "id_Sequence")
-//	@SequenceGenerator(name = "id_Sequence", sequenceName = "PET_SEQ", allocationSize = 1)
-//	@GenericGenerator(name = "id_Sequence", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator", parameters = {
-//			@Parameter(name = "PET_SEQ", value = "SEQUENCE") })
-	@Column(name = "ID")
-	private Long id;
+	private String id;
 
-	@Column(name = "V_NAME")
 	private String name;
 
-	@Column(name = "V_BREED")
 	private String breed;
 
-	@Column(name = "C_GENDER")
 	private String gender;
 
-	@Column(name = "N_BIRTH_DATE")
 	private String birthDate;
 
-	@Column(name = "N_DEATH_DATE")
 	private String deathDate;
 
 	public PetDoc() {
@@ -47,11 +36,11 @@ public class PetDoc {
 		this.deathDate = deathDate;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

@@ -26,7 +26,7 @@ import ee.cgi.kk.petmanager.service.PetService;
 
 public class PetController
 {
-    @Autowired
+	@Autowired
     PetService service;
  
     @GetMapping("/All")
