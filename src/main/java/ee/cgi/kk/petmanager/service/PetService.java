@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import ee.cgi.kk.petmanager.domain.Pet;
 import ee.cgi.kk.petmanager.domain.PetDoc;
 import  ee.cgi.kk.petmanager.exception.RecordNotFoundException;
-import ee.cgi.kk.petmanager.repository.PetMongoRepository;
 import ee.cgi.kk.petmanager.repository.PetRepository;
  
 @Service
@@ -19,8 +18,8 @@ public class PetService {
 	@Autowired(required = false)
 	PetRepository petRepository;
 
-	@Autowired
-	PetMongoRepository petMongoRepository;
+//	@Autowired
+//	PetMongoRepository petMongoRepository;
      
 	public List<Pet> getAllPets()
     {
@@ -50,7 +49,7 @@ public class PetService {
 		System.out.println(pet + " " + "2");
 		Pet empl = petRepository.save(pet);
 		PetDoc petdoc = convertPetdoc(pet);
-		PetDoc empl1 = petMongoRepository.save(petdoc);
+		// PetDoc empl1 = petMongoRepository.save(petdoc);
 		System.out.println("inserted to mongo db as well");
     	return empl;
     }

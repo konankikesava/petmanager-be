@@ -16,7 +16,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import oracle.jdbc.pool.OracleDataSource;
+import com.ibm.db2.jcc.DB2SimpleDataSource;
 
 
 @Configuration
@@ -56,15 +56,29 @@ public class PersistencePetConfiguration {
 	public void setUrl(String url) {
         this.url = url;
 	}
+//    @Primary
+//	@Bean
+//	DataSource dataSource() throws SQLException {
+//		OracleDataSource dataSource = new OracleDataSource();
+//		dataSource.setUser(username);
+//		dataSource.setPassword(password);
+//		dataSource.setURL(url);
+//		dataSource.setImplicitCachingEnabled(true);
+//		dataSource.setFastConnectionFailoverEnabled(true);
+//		return dataSource;
+//	}
+
     @Primary
 	@Bean
 	DataSource dataSource() throws SQLException {
-		OracleDataSource dataSource = new OracleDataSource();
-		dataSource.setUser(username);
-		dataSource.setPassword(password);
-		dataSource.setURL(url);
-		dataSource.setImplicitCachingEnabled(true);
-		dataSource.setFastConnectionFailoverEnabled(true);
+		DB2SimpleDataSource dataSource = new DB2SimpleDataSource();
+		dataSource.setUser("fcr70463");
+		dataSource.setPassword("bfpt9p0fvqnpq^14");
+		dataSource.setDatabaseName("BLUDB");
+		dataSource.setServerName("dashdb-txn-sbox-yp-lon02-06.services.eu-gb.bluemix.net");
+		dataSource.setPortNumber(50000);
+		dataSource.setDriverType(4);
+
 		return dataSource;
 	}
 
